@@ -3,12 +3,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Carbon Calculator</title>
+    <title>Advanced Scope-Based Calculator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
         body {
             margin: 0;
             font-family: 'Inter', sans-serif;
@@ -23,10 +21,7 @@
             height: 100vh;
             padding: 30px 20px;
         }
-        .sidebar h2 {
-            margin-bottom: 30px;
-            font-size: 22px;
-        }
+        .sidebar h2 { margin-bottom: 30px; font-size: 22px; }
         .sidebar a {
             display: block;
             color: white;
@@ -34,46 +29,26 @@
             margin: 15px 0;
             font-weight: 500;
         }
-        .sidebar a:hover {
-            text-decoration: underline;
-        }
         .main {
             flex: 1;
             padding: 40px;
+            overflow-y: auto;
         }
-        .header {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 30px;
-        }
+        .header { font-size: 24px; font-weight: 600; margin-bottom: 30px; }
         .form-section {
-            max-width: 600px;
+            max-width: 900px;
             background-color: white;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
-        label {
-            display: block;
-            margin-top: 20px;
-            font-weight: 500;
-        }
+        label { display: block; margin-top: 20px; font-weight: 500; }
         input {
             width: 100%;
             padding: 12px;
             margin-top: 8px;
             border-radius: 6px;
             border: 1px solid #ccc;
-        }
-        button {
-            margin-top: 30px;
-            background-color: #2e7d32;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
         }
         .result-box {
             margin-top: 30px;
@@ -82,45 +57,165 @@
             border-radius: 6px;
             font-weight: 600;
         }
+        .offset {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #1b4332;
+        }
+        .btns {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        button {
+            background-color: #2e7d32;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div class="sidebar">
         <h2>Carbon Platform</h2>
         <a href="dashboard_modern.html">Dashboard</a>
-        <a href="calculator_modern.html">Carbon Calculator</a>
+        <a href="advanced_scope_calculator.html">Carbon Calculator</a>
         <a href="listing_modern.html">Credit Listing</a>
         <a href="report_modern.html">Report</a>
         <a href="settings_modern.html">Settings</a>
-        <a href="index.html">Logout</a>
+        <a href="login.html">Logout</a>
     </div>
     <div class="main">
-        <div class="header">Carbon Calculator</div>
-        <div class="form-section">
-            <label for="electricity">Electricity Usage (kWh)</label>
-            <input type="number" id="electricity" placeholder="Enter electricity used">
-
-            <label for="diesel">Diesel Fuel (liters)</label>
-            <input type="number" id="diesel" placeholder="Enter diesel used">
-
-            <label for="travel">Travel Distance (km)</label>
-            <input type="number" id="travel" placeholder="Enter travel distance">
-
-            <button onclick="calculate()">Calculate Emissions</button>
-            <div id="output" class="result-box" style="display:none;"></div>
+        <div class="header">Advanced Scope-Based Carbon Calculator</div>
+        <div class="form-section" id="calculator-form">
+            <!-- Dynamic form inputs will be injected by JavaScript -->
         </div>
     </div>
 
     <script>
-        function calculate() {
-            let elec = parseFloat(document.getElementById('electricity').value) || 0;
-            let diesel = parseFloat(document.getElementById('diesel').value) || 0;
-            let travel = parseFloat(document.getElementById('travel').value) || 0;
-            let emission = (elec * 0.74) + (diesel * 2.68) + (travel * 0.12);
-            let result = "Estimated Emissions: " + emission.toFixed(2) + " tCO₂e";
-            document.getElementById('output').innerText = result;
-            document.getElementById('output').style.display = "block";
+        const factors = {
+            "Company Transport": 0.21,
+            "Fossil Fuels": 2.68,
+            "Fugitive Emissions": 1.5,
+            "Electricity Consumption - market-based": 0.74,
+            "Green Tariff Electricity": 0.45,
+            "Electricity Consumption - location-based": 0.67,
+            "Materials": 1.9,
+            "Third-Party Transport": 0.18,
+            "Transmission and Distribution (T&D)": 0.12,
+            "Waste": 0.96,
+            "Water": 0.14,
+            "Well-to-Tank (WTT)": 0.25
+        };
+
+        const scopes = {
+            "Scope 1": ["Company Transport", "Fossil Fuels", "Fugitive Emissions"],
+            "Scope 2": ["Electricity Consumption - market-based", "Green Tariff Electricity", "Electricity Consumption - location-based"],
+            "Scope 3": ["Materials", "Third-Party Transport", "Transmission and Distribution (T&D)", "Waste", "Water", "Well-to-Tank (WTT)"]
+        };
+
+        const form = document.getElementById("calculator-form");
+        let inputs = {};
+
+        function renderForm() {
+            for (const [scope, activities] of Object.entries(scopes)) {
+                const title = document.createElement("h3");
+                title.innerText = scope;
+                form.appendChild(title);
+
+                activities.forEach(activity => {
+                    const label = document.createElement("label");
+                    label.setAttribute("for", activity);
+                    label.innerText = activity;
+
+                    const input = document.createElement("input");
+                    input.setAttribute("type", "number");
+                    input.setAttribute("id", activity);
+                    input.setAttribute("placeholder", "Enter quantity for " + activity);
+
+                    input.addEventListener("input", calculate);
+
+                    form.appendChild(label);
+                    form.appendChild(input);
+                    inputs[activity] = input;
+                });
+            }
+
+            const btns = document.createElement("div");
+            btns.className = "btns";
+            btns.innerHTML = `
+                <button onclick="saveData()">💾 Save</button>
+                <button onclick="loadData()">📂 Load</button>
+            `;
+            form.appendChild(btns);
+
+            const result = document.createElement("div");
+            result.id = "output";
+            result.className = "result-box";
+            result.style.display = "none";
+            form.appendChild(result);
+
+            const suggestion = document.createElement("div");
+            suggestion.id = "offset";
+            suggestion.className = "offset";
+            form.appendChild(suggestion);
         }
+
+        function calculate() {
+            let scope1 = 0, scope2 = 0, scope3 = 0;
+
+            for (const [scope, activities] of Object.entries(scopes)) {
+                activities.forEach(activity => {
+                    const value = parseFloat(inputs[activity].value) || 0;
+                    const emission = value * factors[activity];
+
+                    if (scope === "Scope 1") scope1 += emission;
+                    else if (scope === "Scope 2") scope2 += emission;
+                    else if (scope === "Scope 3") scope3 += emission;
+                });
+            }
+
+            const total = scope1 + scope2 + scope3;
+            const output = document.getElementById("output");
+            output.innerHTML = `
+                Scope 1: ${scope1.toFixed(2)} tCO₂e<br>
+                Scope 2: ${scope2.toFixed(2)} tCO₂e<br>
+                Scope 3: ${scope3.toFixed(2)} tCO₂e<br>
+                <strong>Total: ${total.toFixed(2)} tCO₂e</strong>
+            `;
+            output.style.display = "block";
+
+            document.getElementById("offset").innerText = suggestOffset(total);
+        }
+
+        function suggestOffset(tons) {
+            const trees = Math.ceil(tons * 4.5);
+            return `🌱 Suggestion: Plant approximately ${trees} trees to offset total emissions.`;
+        }
+
+        function saveData() {
+            const data = {};
+            for (const key in inputs) {
+                data[key] = inputs[key].value;
+            }
+            localStorage.setItem("advancedCarbonData", JSON.stringify(data));
+            alert("Data saved!");
+        }
+
+        function loadData() {
+            const data = JSON.parse(localStorage.getItem("advancedCarbonData") || "{}");
+            for (const key in inputs) {
+                if (data[key]) {
+                    inputs[key].value = data[key];
+                }
+            }
+            calculate();
+        }
+
+        renderForm();
     </script>
 </body>
 </html>
