@@ -1,0 +1,126 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Carbon Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            display: flex;
+        }
+        .sidebar {
+            width: 220px;
+            background-color: #1b4332;
+            color: white;
+            height: 100vh;
+            padding: 30px 20px;
+        }
+        .sidebar h2 {
+            margin-bottom: 30px;
+            font-size: 22px;
+        }
+        .sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+        .sidebar a:hover {
+            text-decoration: underline;
+        }
+        .main {
+            flex: 1;
+            padding: 40px;
+        }
+        .header {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+        .form-section {
+            max-width: 600px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        label {
+            display: block;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        button {
+            margin-top: 30px;
+            background-color: #2e7d32;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .result-box {
+            margin-top: 30px;
+            background-color: #e8f5e9;
+            padding: 20px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Carbon Platform</h2>
+        <a href="dashboard_modern.html">Dashboard</a>
+        <a href="calculator_modern.html">Carbon Calculator</a>
+        <a href="listing_modern.html">Credit Listing</a>
+        <a href="report_modern.html">Report</a>
+        <a href="settings_modern.html">Settings</a>
+        <a href="login.html">Logout</a>
+    </div>
+    <div class="main">
+        <div class="header">Carbon Calculator</div>
+        <div class="form-section">
+            <label for="electricity">Electricity Usage (kWh)</label>
+            <input type="number" id="electricity" placeholder="Enter electricity used">
+
+            <label for="diesel">Diesel Fuel (liters)</label>
+            <input type="number" id="diesel" placeholder="Enter diesel used">
+
+            <label for="travel">Travel Distance (km)</label>
+            <input type="number" id="travel" placeholder="Enter travel distance">
+
+            <button onclick="calculate()">Calculate Emissions</button>
+            <div id="output" class="result-box" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        function calculate() {
+            let elec = parseFloat(document.getElementById('electricity').value) || 0;
+            let diesel = parseFloat(document.getElementById('diesel').value) || 0;
+            let travel = parseFloat(document.getElementById('travel').value) || 0;
+            let emission = (elec * 0.74) + (diesel * 2.68) + (travel * 0.12);
+            let result = "Estimated Emissions: " + emission.toFixed(2) + " tCO₂e";
+            document.getElementById('output').innerText = result;
+            document.getElementById('output').style.display = "block";
+        }
+    </script>
+</body>
+</html>
