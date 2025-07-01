@@ -1,193 +1,108 @@
-
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>Carbon Platform Login</title>
+  <meta charset="utf-8" />
+  <title>Carbon Platform Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .login-container {
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 300px;
+    }
+    .login-container h2 {
+      margin-bottom: 20px;
+      color: #333;
+      text-align: center;
+    }
+    input[type="text"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0 20px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      width: 100%;
+      background: #2e7d32;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    .error {
+      color: red;
+      text-align: center;
+      display: none;
+    }
+  </style>
+
 <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            width: 300px;
-        }
-        .login-container h2 {
-            margin-bottom: 20px;
-            color: #333;
-            text-align: center;
-        }
-        input[type="text"], input[type="password"], select {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0 20px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            width: 100%;
-            background: #2e7d32;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        .error {
-            color: red;
-            text-align: center;
-            display: none;
-        }
-    
-body.dark {
+  body {
+    transition: background 0.3s, color 0.3s;
+  }
+  body.dark {
     background-color: #121212;
     color: #e0e0e0;
-}
-body.dark .sidebar {
-    background-color: #0d3b26;
-}
-body.dark .card, body.dark .form-section, body.dark .login-container {
-    background-color: #1e1e1e !important;
-    color: #e0e0e0;
-}
-body.dark h3, body.dark .header {
-    color: #b2f2bb;
-}
-body.dark input, body.dark textarea, body.dark select {
-    background-color: #2c2c2c;
-    color: #fff;
-    border-color: #555;
-}
-
-body {
-    opacity: 0;
-    transition: opacity 0.8s ease-in-out;
-}
-body.loaded {
-    opacity: 1;
-}
-.card, .form-section, .login-container {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.card:hover, .form-section:hover, .login-container:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-}
-button {
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-button:hover {
-    background-color: #40916c;
-    transform: scale(1.02);
-}
-input:focus, select:focus, textarea:focus {
-    border-color: #95d5b2;
-    box-shadow: 0 0 5px #95d5b2;
-    outline: none;
-}
-.toast {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background-color: #2e7d32;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 6px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    opacity: 0;
-    transform: translateY(-10px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-    z-index: 9999;
-}
-.toast.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-#bg-svg path {
-  fill: #d8f3dc;
-}
-body.dark #bg-svg path {
-  fill: #1b4332;
-}
+  }
 </style>
+<script src="scripts/theme.js"></script>
+
 </head>
 <body>
-<svg id="bg-svg" style="position: fixed; z-index: -1; top: 0; left: 0; width: 100%; height: 100%;" viewbox="0 0 1440 320">
-<path fill="#d8f3dc" fill-opacity="1">
-<animate attributename="d" dur="10s" repeatcount="indefinite" values="
-        M0,96L60,101.3C120,107,240,117,360,112C480,107,600,85,720,80C840,75,960,85,1080,101.3C1200,117,1320,139,1380,149.3L1440,160L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z;
-        M0,128L60,122.7C120,117,240,107,360,101.3C480,96,600,96,720,101.3C840,107,960,117,1080,122.7C1200,128,1320,128,1380,128L1440,128L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z;
-        M0,96L60,101.3C120,107,240,117,360,112C480,107,600,85,720,80C840,75,960,85,1080,101.3C1200,117,1320,139,1380,149.3L1440,160L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z
-      "></animate>
-</path>
-</svg>
-<div class="toast" id="toast"></div>
-<div class="login-container"><img src="ksbl-logo.png" style="width:100px; display:block; margin:0 auto 20px;"/>
-<h2>Login</h2>
-<input id="username" placeholder="Username (admin)" type="text"/>
-<input id="password" placeholder="Password (admin)" type="password"/>
-<select id="role">
-<option value="">Select Role</option>
-<option value="SME">SME</option>
-<option value="NGO">NGO</option>
-</select>
-<button onclick="login()">Login</button>
-<p class="error" id="error-msg">Invalid credentials. Try 'admin'.</p>
-</div>
-<script>
-        function login() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
-            const role = document.getElementById('role').value;
-            if (user === "admin" && pass === "admin" && role !== "") {
-                window.location.href = "dashboard_modern_dark.html";
-            } else {
-                document.getElementById('error-msg').style.display = "block";
-            }
+  <div class="login-container">
+    <img src="ksbl-logo.png" style="width:100px; display:block; margin:0 auto 20px;" />
+    <h2>Login</h2>
+    <input id="username" placeholder="Username (admin)" type="text" />
+    <input id="password" placeholder="Password (admin)" type="password" />
+    <select id="role">
+      <option value="">Select Role</option>
+      <option value="SME">SME</option>
+      <option value="NGO">NGO</option>
+    </select>
+    <button onclick="login()">Login</button>
+    <p class="error" id="error-msg">Invalid credentials. Try 'admin'.</p>
+  </div>
+
+  <script>
+    function login() {
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+      const role = document.getElementById("role").value;
+
+      if (user === "admin" && pass === "admin" && role !== "") {
+        const currentUser = { username: user, role: role };
+        localStorage.setItem("currentUser", JSON.stringify(currentUser));
+
+        // Initialize wallet if it doesn't exist
+        const walletKey = "wallet_" + user;
+        if (!localStorage.getItem(walletKey)) {
+          localStorage.setItem(walletKey, JSON.stringify({ credits: 0, rupees: 100000 }));
         }
-    </script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const toggle = document.getElementById("darkToggle");
-    const isDark = localStorage.getItem("darkMode") === "true";
-    if (isDark) {
-        document.body.classList.add("dark");
-        if (toggle) toggle.checked = true;
+
+        // Initialize transaction history if not present
+        const txKey = "transactions_" + user;
+        if (!localStorage.getItem(txKey)) {
+          localStorage.setItem(txKey, JSON.stringify([]));
+        }
+
+        window.location.href = "dashboard_modern_dark.html";
+      } else {
+        document.getElementById("error-msg").style.display = "block";
+      }
     }
-    if (toggle) {
-        toggle.addEventListener("change", function () {
-            if (toggle.checked) {
-                document.body.classList.add("dark");
-                localStorage.setItem("darkMode", "true");
-            } else {
-                document.body.classList.remove("dark");
-                localStorage.setItem("darkMode", "false");
-            }
-        });
-    }
-});
-</script><script>
-document.addEventListener("DOMContentLoaded", () => {
-    document.body.classList.add("loaded");
-    showToast("Page loaded!");
-});
-function showToast(message) {
-    const toast = document.getElementById("toast");
-    toast.innerText = message;
-    toast.classList.add("show");
-    setTimeout(() => {
-        toast.classList.remove("show");
-    }, 1000);
-}
-</script></body>
+  </script>
+</body>
 </html>
