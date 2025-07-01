@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>My Portfolio</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      background: #f4f6f8;
+      display: flex;
+    }
+    .sidebar {
+            width: 230px;
+            background-color: #1b4332;
+            color: white;
+            height: 100vh;
+            padding: 30px 20px;
+        }
+        .sidebar h2 {
+            margin-bottom: 30px;
+            font-size: 22px;
+        }
+        .sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+        .sidebar a:hover {
+            text-decoration: underline;
+        }
+    .main {
+      flex: 1;
+      padding: 40px;
+    }
+    .header {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 30px;
+    }
+    .card {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+    button {
+      margin-top: 10px;
+      background-color: #2e7d32;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    input[type="number"] {
+      width: 80px;
+      padding: 6px;
+      margin-left: 10px;
+    }
+    body.dark {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+body.dark .sidebar {
+    background-color: #0d3b26;
+}
+body.dark .card, body.dark .form-section, body.dark .login-container {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0;
+}
+body.dark h3, body.dark .header {
+    color: #b2f2bb;
+}
+body.dark input, body.dark textarea, body.dark select {
+    background-color: #2c2c2c;
+    color: #fff;
+    border-color: #555;
+}
+  </style>
+
+<style>
+  body {
+    transition: background 0.3s, color 0.3s;
+  }
+  body.dark {
+    background-color: #121212;
+    color: #e0e0e0;
+  }
+</style>
+<script src="scripts/theme.js"></script>
+
+</head>
+<body>
+  <div class="toast" id="toast"></div>
+  <div class="sidebar"><img src="ksbl-logo.png" style="width:100px; margin-bottom: 20px; display:block;"/>
+  <h2>Carbon Platform</h2>
+  <a href="dashboard_modern_dark.html">Dashboard</a>
+  <a href="advanced_scope_calculator_dark.html">Carbon Calculator</a>
+  <a href="listing_modern_dark.html">Credit Listing</a>
+  <a href="report_modern_dark.html">Report</a>
+  <a href="marketplace.html">Marketplace</a>
+  <a href="portfolio.html">My Portfolio</a>
+  <a href="analytics.html">Analytics</a>
+  <a href="admin_panel.html">Admin Panel</a>
+  <a href="settings_modern_dark.html">Settings</a>
+  <a href="index.html">Logout</a>
+  <hr style="margin: 20px 0; border: none; border-top: 1px solid #ccc;"/>
+  <label style="color:white;">
+  <input id="darkToggle" style="margin-right: 8px;" type="checkbox"/>Dark Mode
+  </label>
+  </div>
+  <div class="main">
+    <div class="header">My Portfolio</div>
+
+    <div class="card" id="wallet">
+      <h3>Wallet</h3>
+      <p><strong>Credits:</strong> <span id="credit-balance">0</span></p>
+      <p><strong>Rupees:</strong> <span id="rupee-balance">0</span></p>
+      <button onclick="downloadWalletCSV()">Download Wallet CSV</button>
+    </div>
+
+    <div class="card">
+      <h3>Retire Credits</h3>
+      <label>Number of Credits to Retire:
+        <input type="number" id="retireAmount" min="1" />
+      </label>
+      <button onclick="retireCredits()">Retire Now</button>
+    </div>
+
+    <div class="card">
+      <h3>Transaction History</h3>
+      <button onclick="downloadTxCSV()">Download Transactions CSV</button>
+      <table id="txTable">
+        <thead><tr><th>Type</th><th>Party</th><th>Credits</th><th>Amount</th><th>Date</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Retirement Log</h3>
+      <button onclick="downloadRetiredCSV()">Download Retirements CSV</button>
+      <table id="retireTable">
+        <thead><tr><th>Credits Retired</th><th>Date</th><th>Retirement ID</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  
+<div class="card" id="userListings">
+  <h3>Your Listings</h3>
+  <div id="listingContainer">Loading...</div>
+</div>
+
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      const toggle = document.getElementById("darkToggle");
+      const isDark = localStorage.getItem("darkMode") === "true";
+      if (isDark) {
+          document.body.classList.add("dark");
+          if (toggle) toggle.checked = true;
+      }
+      if (toggle) {
+          toggle.addEventListener("change", function () {
+              if (toggle.checked) {
+                  document.body.classList.add("dark");
+                  localStorage.setItem("darkMode", "true");
+              } else {
+                  document.body.classList.remove("dark");
+                  localStorage.setItem("darkMode", "false");
+              }
+          });
+      }
+  });
+  </script>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    const walletKey = "wallet_" + user.username;
+    const txKey = "transactions_" + user.username;
+    const retireKey = "retiredCredits_" + user.username;
+
+    function loadWallet() {
+      const wallet = JSON.parse(localStorage.getItem(walletKey) || "{}");
+      document.getElementById("credit-balance").innerText = wallet.credits || 0;
+      document.getElementById("rupee-balance").innerText = wallet.rupees || 0;
+    }
+
+    function loadTransactions() {
+      const txs = JSON.parse(localStorage.getItem(txKey) || "[]");
+      const tbody = document.querySelector("#txTable tbody");
+      tbody.innerHTML = "";
+      txs.forEach(tx => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${tx.type}</td>
+          <td>${tx.type === 'Buy' ? tx.from : tx.to}</td>
+          <td>${tx.credits}</td>
+          <td>$${tx.amount}</td>
+          <td>${new Date(tx.date).toLocaleString()}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function loadRetirements() {
+      const logs = JSON.parse(localStorage.getItem(retireKey) || "[]");
+      const tbody = document.querySelector("#retireTable tbody");
+      tbody.innerHTML = "";
+      logs.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${r.credits}</td>
+          <td>${new Date(r.date).toLocaleString()}</td>
+          <td>${r.hash}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function retireCredits() {
+      const amt = parseInt(document.getElementById("retireAmount").value);
+      if (!amt || amt <= 0) return alert("Enter valid number of credits.");
+
+      const wallet = JSON.parse(localStorage.getItem(walletKey) || "{}");
+      if ((wallet.credits || 0) < amt) return alert("Not enough credits to retire.");
+
+      wallet.credits -= amt;
+      localStorage.setItem(walletKey, JSON.stringify(wallet));
+
+      const retireLogs = JSON.parse(localStorage.getItem(retireKey) || "[]");
+      const retirement = {
+        credits: amt,
+        date: new Date().toISOString(),
+        hash: "0x" + Math.random().toString(36).substring(2, 10)
+      };
+      retireLogs.push(retirement);
+      localStorage.setItem(retireKey, JSON.stringify(retireLogs));
+
+      alert("Credits retired successfully!");
+      loadWallet();
+      loadRetirements();
+    }
+
+    function downloadCSV(filename, rows) {
+      const csvContent = rows.map(e => e.join(",")).join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function downloadWalletCSV() {
+      const wallet = JSON.parse(localStorage.getItem(walletKey) || "{}");
+      const rows = [["Credits", "Rupees"], [wallet.credits || 0, wallet.rupees || 0]];
+      downloadCSV("wallet.csv", rows);
+    }
+
+    function downloadTxCSV() {
+      const txs = JSON.parse(localStorage.getItem(txKey) || "[]");
+      const rows = [["Type", "Party", "Credits", "Amount", "Date"]];
+      txs.forEach(tx => {
+        rows.push([
+          tx.type,
+          tx.type === "Buy" ? tx.from : tx.to,
+          tx.credits,
+          tx.amount,
+          new Date(tx.date).toLocaleString()
+        ]);
+      });
+      downloadCSV("transactions.csv", rows);
+    }
+
+    function downloadRetiredCSV() {
+      const logs = JSON.parse(localStorage.getItem(retireKey) || "[]");
+      const rows = [["Credits", "Date", "Hash"]];
+      logs.forEach(r => {
+        rows.push([
+          r.credits,
+          new Date(r.date).toLocaleString(),
+          r.hash
+        ]);
+      });
+      downloadCSV("retirements.csv", rows);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+  loadUserListings();
+      loadWallet();
+      loadTransactions();
+      loadRetirements();
+    });
+  
+function loadUserListings() {
+  const listings = JSON.parse(localStorage.getItem("listings") || "[]");
+  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+  const container = document.getElementById("listingContainer");
+
+  const userListings = listings.filter(l => l.owner === currentUser.username);
+  if (userListings.length === 0) {
+    container.innerHTML = "<p>You have not listed any credits yet.</p>";
+    return;
+  }
+
+  container.innerHTML = "";
+  userListings.reverse().forEach(item => {
+    const div = document.createElement("div");
+    div.style.border = "1px solid #ccc";
+    div.style.padding = "15px";
+    div.style.borderRadius = "8px";
+    div.style.marginBottom = "10px";
+    div.innerHTML = `
+      <strong>${item.project}</strong><br>
+      ${item.description}<br>
+      <small>${item.credits} credits @ $${item.price} | Status: ${item.status || 'pending'}</small><br>
+      <small><em>Submitted: ${new Date(item.createdAt).toLocaleString()}</em></small>
+    `;
+    container.appendChild(div);
+  });
+}
+
+</script>
+</body>
+</html>

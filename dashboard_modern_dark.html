@@ -1,0 +1,263 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Carbon Platform - Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            display: flex;
+        }
+        .sidebar {
+            width: 230px;
+            background-color: #1b4332;
+            color: white;
+            height: 100vh;
+            padding: 30px 20px;
+        }
+        .sidebar h2 {
+            margin-bottom: 30px;
+            font-size: 22px;
+        }
+        .sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+        .sidebar a:hover {
+            text-decoration: underline;
+        }
+        .main {
+            flex: 1;
+            padding: 40px;
+        }
+        .header {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .card h3 {
+            margin-top: 0;
+            font-size: 18px;
+        }
+        .value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .badge {
+            display: inline-block;
+            background-color: #d8f3dc;
+            color: #1b4332;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+    
+body.dark {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+body.dark .sidebar {
+    background-color: #0d3b26;
+}
+body.dark .card, body.dark .form-section, body.dark .login-container {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0;
+}
+body.dark h3, body.dark .header {
+    color: #b2f2bb;
+}
+body.dark input, body.dark textarea, body.dark select {
+    background-color: #2c2c2c;
+    color: #fff;
+    border-color: #555;
+}
+
+/* Fancy UI Enhancements */
+body {
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+}
+body.loaded {
+    opacity: 1;
+}
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+button {
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+button:hover {
+    background-color: #40916c;
+    transform: scale(1.02);
+}
+input:focus, select:focus {
+    border-color: #95d5b2;
+    box-shadow: 0 0 5px #95d5b2;
+    outline: none;
+}
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #2e7d32;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    z-index: 9999;
+}
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#bg-svg path {
+  fill: #d8f3dc;
+}
+body.dark #bg-svg path {
+  fill: #1b4332;
+}
+</style>
+  <script src="scripts/theme.js"></script>
+  <script src="scripts/toast.js"></script>
+</head>
+<body>
+<svg id="bg-svg" style="position: fixed; z-index: -1; top: 0; left: 0; width: 100%; height: 100%;" viewbox="0 0 1440 320">
+<path fill="#d8f3dc" fill-opacity="1">
+<animate attributename="d" dur="10s" repeatcount="indefinite" values="
+        M0,96L60,101.3C120,107,240,117,360,112C480,107,600,85,720,80C840,75,960,85,1080,101.3C1200,117,1320,139,1380,149.3L1440,160L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z;
+        M0,128L60,122.7C120,117,240,107,360,101.3C480,96,600,96,720,101.3C840,107,960,117,1080,122.7C1200,128,1320,128,1380,128L1440,128L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z;
+        M0,96L60,101.3C120,107,240,117,360,112C480,107,600,85,720,80C840,75,960,85,1080,101.3C1200,117,1320,139,1380,149.3L1440,160L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z
+      "></animate>
+</path>
+</svg>
+<div class="toast" id="toast"></div>
+<div class="sidebar"><img src="ksbl-logo.png" style="width:100px; margin-bottom: 20px; display:block;"/>
+<h2>Carbon Platform</h2>
+<a href="dashboard_modern_dark.html">Dashboard</a>
+<a href="advanced_scope_calculator_dark.html">Carbon Calculator</a>
+<a href="listing_modern_dark.html">Credit Listing</a>
+<a href="report_modern_dark.html">Report</a>
+<a href="marketplace.html">Marketplace</a>
+<a href="portfolio.html">My Portfolio</a>
+<a href="analytics.html">Analytics</a>
+<a href="admin_panel.html">Admin Panel</a>
+<a href="settings_modern_dark.html">Settings</a>
+<a href="index.html">Logout</a>
+<hr style="margin: 20px 0; border: none; border-top: 1px solid #ccc;"/>
+<label style="color:white;">
+<input id="darkToggle" style="margin-right: 8px;" type="checkbox"/>Dark Mode
+</label>
+</div>
+<div class="main">
+<div class="header">Welcome, Admin</div>
+<div class="card-grid">
+<div class="card">
+<h3>Total Emissions</h3>
+<div class="value" id="dashboard-emissions">--</div>
+<div class="badge">Scope 1 &amp; 2</div>
+</div>
+<div class="card">
+<h3>Available Credits</h3>
+<div class="value" id="dashboard-credits">--</div>
+<div class="badge">Estimated</div>
+</div>
+<div class="card">
+<h3>Offset Projects</h3>
+<div class="value">1</div>
+<div class="badge">Tree Plantation</div>
+</div>
+<div class="card">
+<h3>Potential Revenue</h3>
+<div class="value" id="dashboard-revenue">--</div>
+<div class="badge">At $15/Credit</div>
+</div>
+</div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const toggle = document.getElementById("darkToggle");
+    const isDark = localStorage.getItem("darkMode") === "true";
+    if (isDark) {
+        document.body.classList.add("dark");
+        if (toggle) toggle.checked = true;
+    }
+    if (toggle) {
+        toggle.addEventListener("change", function () {
+            if (toggle.checked) {
+                document.body.classList.add("dark");
+                localStorage.setItem("darkMode", "true");
+            } else {
+                document.body.classList.remove("dark");
+                localStorage.setItem("darkMode", "false");
+            }
+        });
+    }
+});
+</script>
+<script>
+// Smooth load
+document.addEventListener("DOMContentLoaded", () => {
+    document.body.classList.add("loaded");
+
+    // Example toast on load (can be reused elsewhere)
+    showToast("Dashboard loaded successfully!");
+});
+
+function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.innerText = message;
+    toast.classList.add("show");
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 1000);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const emissions = localStorage.getItem("totalEmissions") || "--";
+    const credits = localStorage.getItem("creditsAvailable") || "--";
+    const revenue = credits !== "--" ? "$" + (credits * 15) : "--";
+
+    const emissionsEl = document.getElementById("dashboard-emissions");
+    const creditsEl = document.getElementById("dashboard-credits");
+    const revenueEl = document.getElementById("dashboard-revenue");
+
+    if (emissionsEl) emissionsEl.innerText = emissions + " tCO₂e";
+    if (creditsEl) creditsEl.innerText = credits;
+    if (revenueEl) revenueEl.innerText = revenue;
+});
+
+</script></body>
+</html>

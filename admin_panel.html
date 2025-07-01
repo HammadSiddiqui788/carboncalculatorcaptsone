@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Admin Panel - Verifier View</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      background: #f4f6f8;
+      display: flex;
+    }
+    .sidebar {
+            width: 230px;
+            background-color: #1b4332;
+            color: white;
+            height: 100vh;
+            padding: 30px 20px;
+        }
+        .sidebar h2 {
+            margin-bottom: 30px;
+            font-size: 22px;
+        }
+        .sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+        .sidebar a:hover {
+            text-decoration: underline;
+        }
+    .main {
+      flex: 1;
+      padding: 40px;
+    }
+    .header {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 30px;
+    }
+    .card {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    button {
+      margin: 5px 5px 0 0;
+      background-color: #2e7d32;
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    button.reject { background-color: #b91c1c; }
+    button.flag { background-color: #ca8a04; }
+    .status-badge {
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      display: inline-block;
+      margin-left: 10px;
+    }
+    .approved { background: #d1fae5; color: #065f46; }
+    .pending { background: #fef9c3; color: #92400e; }
+    .flagged { background: #fee2e2; color: #991b1b; }
+    body.dark {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+body.dark .sidebar {
+    background-color: #0d3b26;
+}
+body.dark .card, body.dark .form-section, body.dark .login-container {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0;
+}
+body.dark h3, body.dark .header {
+    color: #b2f2bb;
+}
+body.dark input, body.dark textarea, body.dark select {
+    background-color: #2c2c2c;
+    color: #fff;
+    border-color: #555;
+}
+  </style>
+
+<style>
+  body {
+    transition: background 0.3s, color 0.3s;
+  }
+  body.dark {
+    background-color: #121212;
+    color: #e0e0e0;
+  }
+</style>
+<script src="scripts/theme.js"></script>
+
+</head>
+<body>
+  <div class="toast" id="toast"></div>
+  <div class="sidebar"><img src="ksbl-logo.png" style="width:100px; margin-bottom: 20px; display:block;"/>
+  <h2>Carbon Platform</h2>
+  <a href="dashboard_modern_dark.html">Dashboard</a>
+  <a href="advanced_scope_calculator_dark.html">Carbon Calculator</a>
+  <a href="listing_modern_dark.html">Credit Listing</a>
+  <a href="report_modern_dark.html">Report</a>
+  <a href="marketplace.html">Marketplace</a>
+  <a href="portfolio.html">My Portfolio</a>
+  <a href="analytics.html">Analytics</a>
+  <a href="admin_panel.html">Admin Panel</a>
+  <a href="settings_modern_dark.html">Settings</a>
+  <a href="index.html">Logout</a>
+  <hr style="margin: 20px 0; border: none; border-top: 1px solid #ccc;"/>
+  <label style="color:white;">
+  <input id="darkToggle" style="margin-right: 8px;" type="checkbox"/>Dark Mode
+  </label>
+  </div>
+
+  <div class="main">
+    <div class="header">Pending Listings</div>
+    <div id="listingSection"></div>
+
+    <div class="header">Audit Log</div>
+    <div class="card" id="auditLog"></div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggle = document.getElementById("darkToggle");
+        const isDark = localStorage.getItem("darkMode") === "true";
+        if (isDark) {
+            document.body.classList.add("dark");
+            if (toggle) toggle.checked = true;
+        }
+        if (toggle) {
+            toggle.addEventListener("change", function () {
+                if (toggle.checked) {
+                    document.body.classList.add("dark");
+                    localStorage.setItem("darkMode", "true");
+                } else {
+                    document.body.classList.remove("dark");
+                    localStorage.setItem("darkMode", "false");
+                }
+            });
+        }
+    });
+    </script>
+
+  <script>
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    if (!["admin", "verifier","SME"].includes(currentUser.role)) {
+      alert("Access denied. Verifier role required.");
+      window.location.href = "login_dark.html";
+    }
+
+    function loadListings() {
+      const all = JSON.parse(localStorage.getItem("listings") || "[]");
+      const container = document.getElementById("listingSection");
+      container.innerHTML = "";
+
+      all.forEach((item, index) => {
+        const status = item.status || "pending";
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <strong>${item.project}</strong> (${item.owner})
+          <span class="status-badge ${status}">${status.toUpperCase()}</span>
+          <p>${item.description}</p>
+          <p>Credits: ${item.credits} @ $${item.price} | Created: ${new Date(item.createdAt).toLocaleString()}</p>
+        `;
+
+        if (status === "pending") {
+          div.innerHTML += `
+            <button onclick="approveListing(${index})">✅ Approve</button>
+            <button class="reject" onclick="rejectListing(${index})">❌ Reject</button>
+            <button class="flag" onclick="flagListing(${index})">🚩 Flag</button>
+          `;
+        }
+
+        container.appendChild(div);
+      });
+    }
+
+    function approveListing(index) {
+      updateStatus(index, "approved");
+    }
+
+    function rejectListing(index) {
+      const listings = JSON.parse(localStorage.getItem("listings") || "[]");
+      const removed = listings.splice(index, 1);
+      logAudit(`Rejected listing "${removed[0].project}"`);
+      localStorage.setItem("listings", JSON.stringify(listings));
+      loadListings();
+      loadAudit();
+    }
+
+    function flagListing(index) {
+      updateStatus(index, "flagged");
+    }
+
+    function updateStatus(index, newStatus) {
+      const listings = JSON.parse(localStorage.getItem("listings") || "[]");
+      listings[index].status = newStatus;
+      localStorage.setItem("listings", JSON.stringify(listings));
+      logAudit(`Marked "${listings[index].project}" as ${newStatus.toUpperCase()}`);
+      loadListings();
+      loadAudit();
+    }
+
+    function logAudit(action) {
+      const logs = JSON.parse(localStorage.getItem("audit_log") || "[]");
+      logs.push({ by: currentUser.username, action, timestamp: new Date().toISOString() });
+      localStorage.setItem("audit_log", JSON.stringify(logs));
+    }
+
+    function loadAudit() {
+      const logs = JSON.parse(localStorage.getItem("audit_log") || "[]").reverse();
+      const container = document.getElementById("auditLog");
+      container.innerHTML = logs.map(log => `
+        <p><strong>${log.by}</strong> - ${log.action} <em>(${new Date(log.timestamp).toLocaleString()})</em></p>
+      `).join("");
+    }
+
+    
+// Promote raw creditListings to admin-reviewable listings
+(function promoteListings() {
+  const raw = JSON.parse(localStorage.getItem("creditListings") || "[]");
+  let listings = JSON.parse(localStorage.getItem("listings") || "[]");
+  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+
+  raw.forEach(entry => {
+    const alreadyExists = listings.some(l => l.project === entry.name && l.createdAt === entry.timestamp);
+    if (!alreadyExists) {
+      listings.push({
+        project: entry.name,
+        description: entry.desc,
+        credits: entry.credits,
+        price: entry.price,
+        owner: currentUser.username || "unknown",
+        createdAt: entry.timestamp,
+        status: "pending"
+      });
+    }
+  });
+
+  localStorage.setItem("listings", JSON.stringify(listings));
+})();
+
+document.addEventListener("DOMContentLoaded", () => {
+      loadListings();
+      loadAudit();
+    });
+  </script>
+</body>
+</html>
